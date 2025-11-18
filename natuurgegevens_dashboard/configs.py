@@ -1,6 +1,6 @@
 from pathlib import Path
 
-DIR_DATA = Path("~/data/natuurgegevens-limburg").expanduser()
+DIR_DATA = Path("~/data/natuurgegevens-dashboard").expanduser()
 DIR_DATA_RAW = DIR_DATA / "raw"
 DIR_DATA_PROCESSED = DIR_DATA / "processed"
 

@@ -13,6 +13,8 @@ def read_vogels_data(file_path):
 def preprocess_vogels_data(df_vogels):
     df = df_vogels.copy()
 
+    # drop columns
+    df = df.drop(columns=['LAT', 'LON', 'COUNT', 'NCOUNT'])
 
     # convert AX/AY to geometry
     gdf = gpd.GeoDataFrame(
@@ -26,9 +28,6 @@ def preprocess_vogels_data(df_vogels):
 
     # convert column names to snake_case
     df = df.clean_names()
-
-    # drop columns
-    df = df.drop(columns=['lon', 'lat', 'count', 'ncount'])
 
     # add kartering label
     df['kartering_jaren'] = df['jaar'].apply(utils.label_kartering)
