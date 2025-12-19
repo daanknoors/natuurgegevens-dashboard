@@ -18,6 +18,9 @@ def preprocess_flora_data(gdf_flora):
     # convert column names to snake_case
     df = df.clean_names()
 
+    # match kwetsbare soorten info
+    df = utils.merge_kwetsbare_soorten(df)
+
     # add kartering label
     df['kartering_jaren'] = df['jaar'].apply(utils.label_kartering)
 

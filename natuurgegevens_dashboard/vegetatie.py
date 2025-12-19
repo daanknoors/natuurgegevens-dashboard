@@ -18,7 +18,7 @@ def preprocess_vegetatie_data(df_vegetatie):
         geometry=gpd.points_from_xy(df["AX"], df["AY"]),
         crs="EPSG:28992" 
     )
-
+ 
     # extract lon/lat from geometry
     df = utils.extract_lat_lon_from_geometry(gdf)
 
@@ -26,9 +26,20 @@ def preprocess_vegetatie_data(df_vegetatie):
     # convert column names to snake_case
     df = df.clean_names()
 
+    # load typologie
+    df_typologie = pd.read_csv(configs.DIR_DATA_RAW / "flora_en_vegetatie/vegetatie_typologie.csv")
+    df_typologie = df_typologie.rename(columns={'Code': 'limb1_lower', 'Beschrijving': 'naam_ned'})
+
+    # strip last r of code column and lowercase
+    df_typologie['limb1_lower'] = df_typologie['limb1_lower'].str.lower().str.rstrip('r')
+
+    # merge with vegetatie data on lowercaed limb1 code after stripping 'r'
+    df['limb1_lower'] = df['limb1'].str.lower().str.rstrip('r')
+    df = df.merge(df_typologie, on='limb1_lower', how='left')
+
     # add kartering label
     df['kartering_jaren'] = df['jaar'].apply(utils.label_kartering)
-
+    
     # rename column names
     df = df.rename(columns={
         'recordnum': 'id'
@@ -42,3 +53,5 @@ if __name__ == "__main__":
     df_vegetatie = preprocess_vegetatie_data(gdf_vegetatie_raw)
     utils.write_processed_data(df_vegetatie, save_path=configs.DIR_DATA_PROCESSED / "vegetatie.csv")
     utils.write_processed_data(df_vegetatie, sample=10000, save_path=configs.DIR_DATA_PROCESSED / "vegetatie_sample_10000.csv")
+
+

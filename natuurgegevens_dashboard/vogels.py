@@ -6,15 +6,12 @@ from natuurgegevens_dashboard import configs
 from natuurgegevens_dashboard import utils
 
 
-def read_vogels_data(file_path):
-    df_vogels = pd.read_excel(file_path)
-    return df_vogels
 
 def preprocess_vogels_data(df_vogels):
     df = df_vogels.copy()
 
-    # drop columns
-    df = df.drop(columns=['LAT', 'LON', 'COUNT', 'NCOUNT'])
+    # select relevant columns
+    df = df[['OID', 'NAAM', 'WETENS', 'AX', 'AY', 'JAAR', 'AANTAL', 'ROOFPIET', 'NPERHOK', 'HOKFREQ']]
 
     # convert AX/AY to geometry
     gdf = gpd.GeoDataFrame(
@@ -30,18 +27,23 @@ def preprocess_vogels_data(df_vogels):
     df = df.clean_names()
 
     # add kartering label
-    df['kartering_jaren'] = df['jaar'].apply(utils.label_kartering)
+    df.loc[:, 'kartering_jaren'] = df.loc[:, 'jaar'].apply(utils.label_kartering)
 
     # rename column names
     df = df.rename(columns={
         'oid': 'id',
         'naam': 'naam_ned',
-        'wetens': 'naam_wed' 
+        'wetens': 'naam_wet' 
     })
+
+    # merge kwetsbare soorten info
+    df = utils.merge_kwetsbare_soorten(df)
     return df
 
 if __name__ == "__main__":
-    df_vogels_raw = read_vogels_data(configs.DIR_DATA_RAW / "vogels" / "data_natuurgegevens_vogels.xlsx")
+    print('Preprocessing vogels data...')
+    df_vogels_raw = pd.read_excel(configs.DIR_DATA_RAW / "vogels" / "data_natuurgegevens_vogels.xlsx")
     df_vogels = preprocess_vogels_data(df_vogels_raw)
     utils.write_processed_data(df_vogels, save_path=configs.DIR_DATA_PROCESSED / "vogels.csv")
     utils.write_processed_data(df_vogels, sample=10000, save_path=configs.DIR_DATA_PROCESSED / "vogels_sample_10000.csv")
+
