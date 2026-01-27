@@ -37,8 +37,17 @@ def preprocess_vegetatie_data(df_vegetatie):
     df['limb1_lower'] = df['limb1'].str.lower().str.rstrip('r')
     df = df.merge(df_typologie, on='limb1_lower', how='left')
 
+    # add missing name for naam_ned and limb1 when null
+    df.loc[df['limb1'].isna(), 'limb1'] = 'Onbekende vegetatiecode'
+    df.loc[df['naam_ned'].isna(), 'naam_ned'] = 'Onbekende vegetatienaam'
+
     # add kartering label
     df['kartering_jaren'] = df['jaar'].apply(utils.label_kartering)
+
+    # make naam_comb with limb1 column and naam_ned
+    df.loc[:, 'naam_comb'] = df.apply(
+        lambda row: f"{row['limb1']} / {row['naam_ned']}", axis=1
+    )
     
     # rename column names
     df = df.rename(columns={

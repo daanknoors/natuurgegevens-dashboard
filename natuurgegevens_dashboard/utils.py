@@ -37,6 +37,16 @@ def label_kartering(jaar):
         return 'Overige jaren'
     
 
+def clean_string(string, chars_to_remove=None):
+    # remove characters
+    chars_to_remove = ['(', ')', '"', '<', '>'] if chars_to_remove is None else chars_to_remove
+    for char in chars_to_remove:
+        string = string.replace(char, '')
+    # strip leading/trailing whitespace
+    string = string.strip()
+    return string
+
+
 def merge_kwetsbare_soorten(df, verbose=True):
     df_kwetsbare_soorten = pd.read_excel(configs.DIR_DATA_RAW / "kwetsbare_soorten_v1_1_1 (1).xlsx")
 
@@ -62,7 +72,7 @@ def merge_kwetsbare_soorten(df, verbose=True):
             'kwetsbare_soort_reden': 'kwetsbare_soort_reden_ned',
             'kwetsbare_soort_onderbouwing': 'kwetsbare_soort_onderbouwing_ned'
         }
-    )
+    ).copy()
     df = df.merge(df_temp, on='naam_ned', how='left')
 
     if verbose:

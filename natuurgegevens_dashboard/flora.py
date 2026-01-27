@@ -24,6 +24,14 @@ def preprocess_flora_data(gdf_flora):
     # add kartering label
     df['kartering_jaren'] = df['jaar'].apply(utils.label_kartering)
 
+    # naam_ned and naam_wet combined in one column
+    df.loc[:, 'naam_comb'] = df.apply(
+        lambda row: f"{row['naam_ned']} / ({row['naam_wet']})", axis=1
+    )
+
+    # remove unwanted characters from naam_comb
+    df.loc[:, 'naam_comb'] = df['naam_comb'].apply(utils.clean_string)
+
     # rename column names
     df = df.rename(columns={
         'plant_id': 'id'

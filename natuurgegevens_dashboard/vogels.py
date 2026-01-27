@@ -36,6 +36,14 @@ def preprocess_vogels_data(df_vogels):
         'wetens': 'naam_wet' 
     })
 
+    # naam_ned and naam_wet combined in one column
+    df.loc[:, 'naam_comb'] = df.apply(
+        lambda row: f"{row['naam_ned']} / ({row['naam_wet']})", axis=1
+    )
+
+    # remove unwanted characters from naam_comb
+    df.loc[:, 'naam_comb'] = df['naam_comb'].apply(utils.clean_string)
+
     # merge kwetsbare soorten info
     df = utils.merge_kwetsbare_soorten(df)
     return df
